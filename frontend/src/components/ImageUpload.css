@@ -1,0 +1,61 @@
+.image-upload {
+  margin: 20px 0;
+}
+
+.image-upload h3 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #333;
+}
+
+.upload-zone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+}
+
+.upload-zone:hover {
+  border-color: #999;
+  background-color: #f0f0f0;
+}
+
+.upload-zone.dragging {
+  border-color: #4CAF50;
+  background-color: #e8f5e9;
+}
+
+.upload-zone.uploaded {
+  border-color: #4CAF50;
+  background-color: #e8f5e9;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-icon {
+  font-size: 40px;
+}
+
+.upload-content p {
+  margin: 10px 0 5px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.upload-content small {
+  color: #999;
+}
+
+.upload-success {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 18px;
+}

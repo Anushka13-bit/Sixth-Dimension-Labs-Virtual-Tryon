@@ -1,13 +1,14 @@
+from dotenv import load_dotenv
+load_dotenv()   # MUST BE FIRST
+
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-import os
-from dotenv import load_dotenv
 
 from app.routes.tryon import router as tryon_router
 
-load_dotenv()
 
 app = FastAPI(
     title="Virtual Jewellery Try-On",
@@ -41,6 +42,13 @@ app.include_router(tryon_router, prefix="/api")
 def root():
     return {"message": "Jewellery Try-On API Running"}
 
+
 @app.get("/health")
-def health():
-    return {"status": "ok"}
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

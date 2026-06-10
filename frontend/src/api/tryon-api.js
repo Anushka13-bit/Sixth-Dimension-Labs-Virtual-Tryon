@@ -20,7 +20,26 @@ export const tryon_api = {
           'Content-Type': 'multipart/form-data'
         }
       })
-      return response.data
+      
+      const task_id = response.data?.task_id;
+      if (!task_id) return response.data;
+
+      // Poll the status
+      while (true) {
+        const statusResponse = await axios.get(`${API_BASE_URL}/try-on/${task_id}`);
+        const statusData = statusResponse.data;
+
+        if (statusData.status === 'completed') {
+          return statusData;
+        } else if (statusData.status === 'failed') {
+          throw new Error('Generation failed on server.');
+        } else if (statusData.status === 'unknown') {
+          throw new Error('Task unknown or expired.');
+        }
+
+        // Wait 2 seconds before polling again
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     } catch (error) {
       console.error('Error in try-on request:', error)
       if (error.response?.data?.detail) {

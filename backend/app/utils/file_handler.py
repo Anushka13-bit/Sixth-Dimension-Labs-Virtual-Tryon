@@ -50,7 +50,7 @@ class FileHandler:
         with open(filepath, 'wb') as f:
             f.write(image_content)
         
-        return str(filepath)
+        return f"generated/{filename}"
     
     def get_file_bytes(self, filepath: str) -> bytes:
         """Read file bytes."""
@@ -61,7 +61,7 @@ class FileHandler:
         """Validate if file is a valid image."""
         try:
             img = Image.open(filepath)
-            img.verify()
+            img.load()
             return True
         except Exception:
             return False

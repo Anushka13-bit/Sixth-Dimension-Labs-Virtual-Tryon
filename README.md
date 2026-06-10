@@ -1,15 +1,15 @@
 # Virtual Jewellery Try-On
 
-A complete full-stack application for virtual jewelry try-on using AI-generated images. Users upload face/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) with photorealistic results.
+A complete full-stack application for virtual jewelry try-on using AI-generated images and videos. Users upload face/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) with photorealistic results powered by the Kling AI model.
 
 ## 🌟 Features
 
 - **Upload Photos**: Upload face and hand images for try-on
 - **Browse Jewelry**: Browse a curated catalog of jewelry items
-- **Virtual Try-On**: Get photorealistic virtual try-on images using Google Gemini AI
-- **Video Generation**: Generated try-on videos for product showcase
+- **Virtual Try-On**: Get photorealistic virtual try-on images using PiAPI (Kling Image-to-Image)
+- **Video Generation**: Automatically generate cinematic try-on videos using kie.ai (Kling Image-to-Video)
 - **Smart Validation**: Automatic validation for jewelry-specific image requirements
-- **Download Results**: Download generated images and videos
+- **Download Results**: Download generated images and videos directly to your device
 - **Modern UI**: Clean, responsive interface with drag-and-drop upload
 
 ## 📋 Project Structure
@@ -21,8 +21,8 @@ virtual-tryon/
 │   │   ├── routes/
 │   │   │   └── tryon.py           # API endpoints
 │   │   ├── services/
-│   │   │   ├── gemini_service.py  # Gemini API integration
-│   │   │   ├── video_service.py   # Video generation
+│   │   │   ├── piapi_service.py   # PiAPI integration for images
+│   │   │   ├── video_service.py   # kie.ai integration for videos
 │   │   │   ├── prompt_builder.py  # Dynamic prompt generation
 │   │   │   └── catalog_service.py # Catalog management
 │   │   ├── models/
@@ -59,8 +59,8 @@ virtual-tryon/
 ### Backend
 - **Python 3.8+**
 - **FastAPI** - Modern web framework
-- **Google Generative AI** - AI image generation
-- **Pillow** - Image processing
+- **PiAPI** - AI image generation (Kling)
+- **kie.ai** - AI video generation (Kling Image-to-Video)
 - **Pydantic** - Data validation
 - **Python-dotenv** - Environment management
 - **Uvicorn** - ASGI server
@@ -76,7 +76,8 @@ virtual-tryon/
 ### Prerequisites
 - Python 3.8 or higher
 - Node.js 16 or higher
-- Google Gemini API key
+- **PiAPI API Key** (for image generation)
+- **kie.ai API Key** (for video generation)
 
 ### Backend Setup
 
@@ -99,19 +100,13 @@ virtual-tryon/
 4. **Setup environment variables**
    ```bash
    # Copy .env file and update with your values
-   cp .env .env.local
-   # Edit .env.local and add your Google Gemini API key
+   cp .env.example .env
    ```
+   *Edit `.env` and add your API keys (see APIs section below).*
 
-5. **Create placeholder jewelry images** (optional, for catalog display)
+5. **Run backend server**
    ```bash
-   mkdir -p catalog
-   # Add your jewelry images as .jpg files to the catalog directory
-   ```
-
-6. **Run backend server**
-   ```bash
-   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
    
    Backend will be available at `http://localhost:8000`
@@ -130,7 +125,6 @@ virtual-tryon/
 
 3. **Create .env file**
    ```bash
-   # Create .env.local file
    echo "VITE_API_URL=http://localhost:8000/api" > .env.local
    ```
 
@@ -141,86 +135,48 @@ virtual-tryon/
    
    Frontend will be available at `http://localhost:5173`
 
-## 🔑 Free APIs & Setup Guide
+## 🔑 APIs & Setup Guide
 
-### Google Gemini API (Required)
+This application relies on two external APIs to generate high-quality Kling AI outputs: **PiAPI** (for the try-on images) and **kie.ai** (for animating those images into video).
 
-This application uses **Google Generative AI (Gemini)** for photorealistic virtual try-on image generation.
-
-**Why Gemini API?**
-- ✅ **Completely FREE** - No credit card required for initial use
-- ✅ **High Quality** - State-of-the-art AI image generation
-- ✅ **Easy Setup** - Simple REST API with Python SDK
-- ✅ **Generous Free Tier** - 60 requests/minute, no daily hard limit
-
-**Getting Your API Key (2 minutes):**
-
-1. Visit: [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Click **"Create API key in new project"**
-3. **Copy** the generated API key
-4. Add to `backend/.env`:
+### 1. PiAPI (Virtual Try-On Images)
+Used for the core virtual try-on experience.
+1. Create an account at [PiAPI](https://piapi.ai/)
+2. Generate an API Key from your dashboard.
+3. Top up credits if necessary.
+4. Add to your `.env`:
    ```bash
-   GEMINI_API_KEY=your_copied_key_here
+   PIAPI_KEY=your_piapi_key_here
+   PIAPI_BASE_URL=https://api.piapi.ai/api/v1/task
    ```
 
-**Verify It Works:**
-```bash
-# After setup, test the API
-curl http://localhost:8000/health
-# Should return: {"status": "healthy"}
-```
-
-### Free Tier Rate Limits & Workarounds
-
-**Default Limits:**
-- **Rate**: 60 requests per minute
-- **Daily**: No hard limit (fair use)
-- **Cost**: Always FREE for development
-
-**If You Hit Rate Limit (429 Error):**
-
-1. **Automatic Handling** (Built-in):
-   - Frontend shows: "Rate limited - please wait"
-   - Suggested wait: 60 seconds
-
-2. **Manual Workaround**:
+### 2. kie.ai (Cinematic Video Generation)
+Used to transform the static try-on image into a smooth, cinematic 5-second video.
+1. Create an account at [kie.ai](https://kie.ai/)
+2. Generate an API Key from your dashboard.
+3. Top up credits if necessary (Error `402` means insufficient credits).
+4. Add to your `.env`:
    ```bash
-   # Space out requests with delays
-   # Best practice: 5-10 seconds between requests during testing
-   # Avoid rapid successive clicks on "Try On" button
+   KIE_API_KEY=your_kie_api_key_here
+   KIE_BASE_URL=https://api.kie.ai/v1/videos/image2video
+   KIE_AUTH_TYPE=bearer
    ```
 
-3. **Testing Tips**:
-   - Use same image for multiple tries (to test quickly)
-   - Wait between different requests
-   - Test during off-peak hours for better availability
+## 🔐 Environment Variables (.env)
 
-4. **For Production Use**:
-   - Monitor your usage in Google AI Studio
-   - Paid tier available if needed: [Google AI Pricing](https://ai.google.dev/pricing)
-   - Generous free tier covers most use cases
-
-### Other Services (No API Keys Needed)
-
-- **Pillow** - Image processing (local library)
-- **Uvicorn** - Web server (local library)
-- **Vite** - Frontend dev tool (local library)
-- **FastAPI** - Backend framework (local library)
-
-All other dependencies are local and don't require external API keys.
-
-## 🔐 Environment Variables
-
-### Backend (.env)
+Your `backend/.env` should look like this:
 ```
-GEMINI_API_KEY=your_google_gemini_api_key_here
 BACKEND_URL=http://localhost:8000
 FRONTEND_URL=http://localhost:5173
-```
 
-### Frontend (.env.local)
-```
-VITE_API_URL=http://localhost:8000/api
+# PiAPI (Image Generation)
+PIAPI_KEY=your_key_here
+PIAPI_BASE_URL=https://api.piapi.ai/api/v1/task
+
+# kie.ai (Video Generation)
+KIE_API_KEY=your_key_here
+KIE_BASE_URL=https://api.kie.ai/v1/videos/image2video
+KIE_AUTH_TYPE=bearer
 ```
 
 ## 📚 API Endpoints
@@ -228,50 +184,13 @@ VITE_API_URL=http://localhost:8000/api
 ### GET /api/catalog
 Get all jewelry items in the catalog.
 
-**Response:**
-```json
-[
-  {
-    "id": "1",
-    "name": "Gold Necklace",
-    "type": "necklace",
-    "image": "necklace1.jpg",
-    "description": "Elegant gold necklace"
-  }
-]
-```
-
 ### POST /api/try-on
-Generate virtual try-on image.
+Generate virtual try-on image (Automatically triggers PiAPI).
+- **Multipart Form Data**: `jewelry_id`, `face_image` (optional), `hand_image` (optional)
 
-**Request:**
-```
-multipart/form-data:
-- jewelry_id (string): ID of jewelry from catalog
-- face_image (file, optional): User's face photo
-- hand_image (file, optional): User's hand photo
-```
-
-**Validation:**
-- For `ring` or `bracelet`: `hand_image` is required
-- For `necklace` or `earrings`: `face_image` is required
-
-**Response:**
-```json
-{
-  "image_url": "http://localhost:8000/generated/generated_abc123.jpg",
-  "video_url": "http://localhost:8000/generated/video_abc123.mp4",
-  "message": "Try-on image generated successfully"
-}
-```
-
-**Error Response:**
-```json
-{
-  "error": "Bad Request",
-  "detail": "Hand image required for ring try-on"
-}
-```
+### POST /api/generate-video
+Generate video from image (Automatically triggers kie.ai).
+- **JSON Body**: `{"image_url": "..."}`
 
 ## 🎨 Jewelry Types & Image Requirements
 
@@ -282,69 +201,11 @@ multipart/form-data:
 | Ring | Hand | Placed on finger |
 | Bracelet | Hand | Placed on wrist |
 
-## 💾 Catalog Format
-
-The catalog is defined in `backend/catalog/catalog.json`:
-
-```json
-[
-  {
-    "id": "1",
-    "name": "Gold Necklace",
-    "type": "necklace",
-    "image": "necklace1.jpg",
-    "description": "Elegant gold necklace with premium finish"
-  }
-]
-```
-
-Add more items by extending this JSON array.
-
 ## 🔄 Workflow
 
 1. **Upload Images**: User uploads face and/or hand images
 2. **Select Jewelry**: User browses and selects a jewelry item
 3. **Try On**: Frontend validates requirements and sends request
-4. **Generate**: Backend uses Gemini API to generate try-on image
-5. **Create Video**: Video is generated from the try-on image
-6. **Display Results**: Generated image and video are displayed
-7. **Download**: User can download results
-
-## 📸 Screenshots & Demo
-
-### Application Flow
-
-**Step 1: Upload Images**
-- Drag and drop face photo (for necklace/earrings)
-- Drag and drop hand photo (for ring/bracelet)
-- Clear visual feedback showing successful uploads
-
-**Step 2: Browse Jewelry**
-- Grid display of 6+ jewelry items
-- Each item shows: image, name, type, description
-- Click to select item (highlighted with checkmark)
-
-**Step 3: Click "Try On"**
-- Validates image requirements based on jewelry type
-- Shows loading spinner during processing (30-60 seconds)
-- Displays error message if validation fails
-
-**Step 4: View Results**
-- High-quality generated image
-- Embedded video player
-- Download buttons for both image and video
-
-
-### Testing the Application
-
-To see the application in action:
-
-```bash
-# 1. Start both servers (backend + frontend)
-# 2. Open http://localhost:5173
-# 3. Upload any face/hand photo
-# 4. Select a jewelry item
-# 5. Click "Try On"
-# 6. Wait for image generation
-# 7. View and download results
-```
+4. **Generate Image**: Backend uses PiAPI to generate a photorealistic try-on image
+5. **Create Video**: Frontend automatically passes the generated image to `/generate-video` which uses kie.ai to generate a 5-second video.
+6. **Display & Download**: User can view and download the image and video results directly from the browser.

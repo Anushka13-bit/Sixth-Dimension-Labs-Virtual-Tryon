@@ -3,42 +3,42 @@
     "id": "1",
     "name": "Gold Necklace",
     "type": "necklace",
-    "image": "necklace1.jpg",
+    "image": "necklace1.webp",
     "description": "Elegant gold necklace with premium finish"
   },
   {
     "id": "2",
     "name": "Diamond Ring",
     "type": "ring",
-    "image": "ring1.jpg",
+    "image": "ring1.jpeg",
     "description": "Stunning diamond solitaire ring"
   },
   {
     "id": "3",
     "name": "Pearl Earrings",
     "type": "earrings",
-    "image": "earrings1.jpg",
+    "image": "earrings1.webp",
     "description": "Classic pearl stud earrings"
   },
   {
     "id": "4",
     "name": "Silver Bracelet",
     "type": "bracelet",
-    "image": "bracelet1.jpg",
+    "image": "bracelet1.jpeg",
     "description": "Sophisticated silver tennis bracelet"
   },
   {
     "id": "5",
     "name": "Emerald Necklace",
     "type": "necklace",
-    "image": "necklace2.jpg",
+    "image": "necklace2.jpeg",
     "description": "Luxurious emerald pendant necklace"
   },
   {
     "id": "6",
     "name": "Ruby Ring",
     "type": "ring",
-    "image": "ring2.jpg",
+    "image": "ring2.jpeg",
     "description": "Vibrant ruby gemstone ring"
   }
 ]

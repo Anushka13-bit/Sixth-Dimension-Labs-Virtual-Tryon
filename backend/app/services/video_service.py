@@ -1,109 +1,98 @@
 import os
+import time
+import uuid
+import base64
+import requests
 from pathlib import Path
-import struct
-import io
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class VideoService:
     def __init__(self):
-        """Initialize video service."""
-        self.generated_dir = Path(__file__).parent.parent.parent / "generated"
-    
-    def generate_video(self, image_path: str) -> str:
-        """
-        Generate a video from the generated image.
-        
-        Currently a placeholder implementation that creates a minimal MP4.
-        This structure allows easy integration with Kling API later.
-        
-        Args:
-            image_path: Path to the generated image
-        
-        Returns:
-            Path to generated video
-        """
-        try:
-            # Create a minimal valid MP4 file as placeholder
-            # This ensures the video_url is valid even without actual video generation
-            video_path = self._create_placeholder_video()
-            return video_path
-        except Exception as e:
-            print(f"Error generating video: {str(e)}")
-            return ""
-    
-    def _create_placeholder_video(self) -> str:
-        """
-        Create a minimal placeholder MP4 file.
-        
-        Returns:
-            Path to placeholder video
-        """
-        import uuid
-        from datetime import datetime
-        
-        video_filename = f"video_{uuid.uuid4().hex[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
-        video_path = self.generated_dir / video_filename
-        
-        # Create a minimal valid MP4 file structure
-        # This is a very basic structure just to have a valid file
-        self._write_minimal_mp4(str(video_path))
-        
-        return str(video_path)
-    
-    @staticmethod
-    def _write_minimal_mp4(filepath: str):
-        """
-        Write a minimal valid MP4 file.
-        This is a placeholder - in production, integrate with Kling API.
-        
-        Args:
-            filepath: Path where to save the MP4
-        """
-        # Minimal MP4 structure with ftyp and mdat atoms
-        with open(filepath, 'wb') as f:
-            # ftyp atom (file type)
-            ftyp = b'ftypisom' + struct.pack('>I', 512) + b'\x00' * (32 - 12)
-            f.write(struct.pack('>I', len(ftyp) + 8) + ftyp)
-            
-            # mdat atom (placeholder media data)
-            mdat_data = b'Placeholder video content - integrate Kling API here'
-            mdat = mdat_data
-            f.write(struct.pack('>I', len(mdat) + 8) + b'mdat' + mdat)
-    
-    def generate_video_with_kling_api(self, image_path: str, kling_api_key: str) -> str:
-        """
-        Generate video using Kling API (future implementation).
-        
-        Args:
-            image_path: Path to the image to convert to video
-            kling_api_key: Kling API key
-        
-        Returns:
-            Path to generated video
-        
-        Note:
-            This method is a template for future Kling API integration.
-            Uncomment and implement when Kling API credentials are available.
-        """
-        # TODO: Implement Kling API integration
-        # Steps:
-        # 1. Upload image to Kling API
-        # 2. Request video generation with parameters
-        # 3. Poll for completion
-        # 4. Download generated video
-        # 5. Save to local storage
-        # 6. Return path
-        
-        raise NotImplementedError("Kling API integration not yet implemented. Use generate_video() for placeholder.")
+        self.token = os.getenv("KLING_API_KEY")
 
+        if not self.token:
+            raise ValueError("KLING_API_KEY missing in .env")
 
-# Singleton instance
-_video_service = None
+        self.base_url = "https://api-singapore.klingai.com/v1/videos/image2video"
 
+        self.headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
 
-def get_video_service() -> VideoService:
-    """Get or create video service instance."""
-    global _video_service
-    if _video_service is None:
-        _video_service = VideoService()
-    return _video_service
+        # IMPORTANT: match YOUR structure
+        self.base_dir = Path(__file__).parent.parent.parent
+        self.video_dir = self.base_dir / "generated" / "videos"
+        self.video_dir.mkdir(parents=True, exist_ok=True)
+
+    # -----------------------------
+    # STEP 1: CREATE TASK
+    # -----------------------------
+    def create_video_task(self, image_path: str) -> str:
+
+        image_base64 = self._to_base64(image_path)
+
+        payload = {
+            "model_name": "kling-v2-6",
+            "image": image_base64,
+            "prompt": (
+                "Fashion try-on video. Subject naturally turns left and right with smooth motion. "
+                "Subtle camera orbit, cinematic framing. Realistic lighting, soft shadows. "
+                "High-quality commercial product video, stable and smooth motion."
+            ),
+            "duration": "5",
+            "mode": "pro",
+            "sound": "off"
+    }
+
+    # -----------------------------
+    # STEP 2: POLL STATUS
+    # -----------------------------
+    def wait_for_video(self, task_id: str):
+        url = f"{self.base_url}/{task_id}"
+
+        while True:
+            res = requests.get(url, headers=self.headers)
+            res.raise_for_status()
+
+            data = res.json()["data"]
+            status = data["task_status"]
+
+            print("Status:", status)
+
+            if status == "succeed":
+                video_url = data["task_result"]["videos"][0]["url"]
+                return self._download(video_url)
+
+            if status == "failed":
+                raise Exception("Kling video generation failed")
+
+            time.sleep(6)
+
+    # -----------------------------
+    # STEP 3: DOWNLOAD VIDEO
+    # -----------------------------
+    def _download(self, url: str) -> str:
+        res = requests.get(url)
+        res.raise_for_status()
+
+        filename = f"video_{uuid.uuid4().hex[:10]}.mp4"
+        path = self.video_dir / filename
+
+        with open(path, "wb") as f:
+            f.write(res.content)
+
+        print("Saved video:", path)
+        return str(path)
+
+    # -----------------------------
+    # UTIL: image → base64
+    # -----------------------------
+    def _to_base64(self, image_path: str) -> str:
+        with open(image_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+
+        return f"data:image/png;base64,{encoded}"

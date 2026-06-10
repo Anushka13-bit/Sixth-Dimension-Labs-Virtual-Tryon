@@ -5,79 +5,42 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
+from app.routes.tryon import router as tryon_router
+
 load_dotenv()
 
-from app.routes import tryon
-
-# Create FastAPI app
 app = FastAPI(
     title="Virtual Jewellery Try-On",
-    description="Virtual try-on application for jewelry items",
     version="1.0.0"
 )
 
-# Configure CORS
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://localhost:8000",
-    os.getenv("FRONTEND_URL", "http://localhost:5173")
-]
-
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount static files for serving uploaded and generated images
-base_dir = Path(__file__).parent.parent.parent
-uploads_dir = base_dir / "uploads"
-generated_dir = base_dir / "generated"
-catalog_dir = base_dir / "catalog"
+# Static folders
+base_dir = Path(__file__).parent.parent
+uploads = base_dir / "uploads"
+generated = base_dir / "generated"
+catalog = base_dir / "catalog"
 
-try:
-    app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
-except Exception as e:
-    print(f"Warning: Could not mount uploads directory: {e}")
+app.mount("/uploads", StaticFiles(directory=uploads), name="uploads")
+app.mount("/generated", StaticFiles(directory=generated), name="generated")
+app.mount("/catalog", StaticFiles(directory=catalog), name="catalog")
 
-try:
-    app.mount("/generated", StaticFiles(directory=generated_dir), name="generated")
-except Exception as e:
-    print(f"Warning: Could not mount generated directory: {e}")
-
-try:
-    app.mount("/catalog", StaticFiles(directory=catalog_dir), name="catalog")
-except Exception as e:
-    print(f"Warning: Could not mount catalog directory: {e}")
-
-# Include routes
-app.include_router(tryon.router, prefix="/api", tags=["try-on"])
+# Routes
+app.include_router(tryon_router, prefix="/api")
 
 
 @app.get("/")
-async def root():
-    """Root endpoint."""
-    return {
-        "message": "Virtual Jewellery Try-On API",
-        "version": "1.0.0",
-        "endpoints": {
-            "catalog": "/api/catalog",
-            "try-on": "/api/try-on"
-        }
-    }
-
+def root():
+    return {"message": "Jewellery Try-On API Running"}
 
 @app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+def health():
+    return {"status": "ok"}

@@ -334,3 +334,17 @@ Add more items by extending this JSON array.
 - Embedded video player
 - Download buttons for both image and video
 
+
+### Testing the Application
+
+To see the application in action:
+
+```bash
+# 1. Start both servers (backend + frontend)
+# 2. Open http://localhost:5173
+# 3. Upload any face/hand photo
+# 4. Select a jewelry item
+# 5. Click "Try On"
+# 6. Wait for image generation
+# 7. View and download results
+```

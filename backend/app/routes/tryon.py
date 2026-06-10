@@ -95,23 +95,29 @@ async def get_status(task_id: str, request: Request):
     data = result.get("data", {})
     status = data.get("status")
 
-    if status == "success":
-        # Download the image from piapi and save it to the generated folder
-        image_url = data["output"]["image_url"]
+    if status in ["success", "completed"]:
+        # Download the image from PiAPI and save it to the generated folder
+        output = data.get("output", {})
+        image_url = output.get("image_url")
+        if not image_url and "image_urls" in output and len(output["image_urls"]) > 0:
+            image_url = output["image_urls"][0]
+
+        local_path = None
         try:
             img_response = requests.get(image_url, timeout=30)
             img_response.raise_for_status()
             local_path = files.save_generated_image(img_response.content)
-            
             final_image_url = f"{request.base_url}{local_path}"
         except Exception as e:
-            print("Failed to download image:", e)
+            print("Failed to download generated image:", e)
             final_image_url = image_url
 
+        # Return image immediately — video is generated separately
         return {
             "task_id": task_id,
             "status": "completed",
-            "image_url": final_image_url
+            "image_url": final_image_url,
+            "piapi_image_url": image_url
         }
 
     if status == "failed":
@@ -125,3 +131,42 @@ async def get_status(task_id: str, request: Request):
         "task_id": task_id,
         "status": "processing"
     }
+
+
+from pydantic import BaseModel
+
+class VideoRequest(BaseModel):
+    image_url: str
+
+# ---------------------------
+# 3. GENERATE VIDEO (separate step)
+# ---------------------------
+@router.post("/generate-video")
+async def generate_video(req: VideoRequest, request: Request):
+    """
+    Accepts { "image_url": "..." } and creates a Kling video.
+    Returns the video URL once done.
+    """
+    from app.services.video_service import VideoService
+
+    image_url = req.image_url
+
+    if not image_url:
+        raise HTTPException(400, "image_url is required")
+
+    try:
+        video_service = VideoService()
+        video_task_id = video_service.create_video_task(image_url)
+        video_result = video_service.wait_for_video(video_task_id)
+        video_url = f"{request.base_url}{video_result['local_path']}"
+
+        return {
+            "status": "completed",
+            "video_url": video_url
+        }
+    except Exception as e:
+        print("Video generation failed:", e)
+        return {
+            "status": "failed",
+            "error": str(e)
+        }

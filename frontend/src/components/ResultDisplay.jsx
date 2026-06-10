@@ -1,7 +1,27 @@
 import React from 'react'
 import './ResultDisplay.css'
 
-export function ResultDisplay({ result, isLoading, error, onReset }) {
+export function ResultDisplay({ result, isLoading, error, onReset, isVideoLoading, videoError }) {
+  const handleDownload = async (e, url, filename) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Download failed:', err);
+      // Fallback: open in new tab
+      window.open(url, '_blank');
+    }
+  }
+
   if (!result && !error && !isLoading) {
     return null
   }
@@ -42,12 +62,38 @@ export function ResultDisplay({ result, isLoading, error, onReset }) {
               <div className="image-display">
                 <img src={result.image_url} alt="Generated try-on" />
               </div>
-              <a href={result.image_url} download className="download-btn">
+              <a 
+                href={result.image_url} 
+                onClick={(e) => handleDownload(e, result.image_url, 'tryon-result.jpg')}
+                className="download-btn"
+              >
                 ⬇️ Download Image
               </a>
             </div>
 
-            {result.video_url && (
+            {isVideoLoading && (
+              <div className="result-item video-loading-item">
+                <h4>Generated Video</h4>
+                <div className="loading-spinner video-spinner">
+                  <div className="spinner"></div>
+                  <p>Generating video animation...</p>
+                  <small>This takes a few minutes.</small>
+                </div>
+              </div>
+            )}
+
+            {videoError && !isVideoLoading && (
+              <div className="result-item video-error-item">
+                <h4>Generated Video</h4>
+                <div className="error-message video-error-message">
+                  <span className="error-icon">⚠️</span>
+                  <p>Video generation failed:</p>
+                  <p className="small-error">{videoError}</p>
+                </div>
+              </div>
+            )}
+
+            {result.video_url && !isVideoLoading && (
               <div className="result-item">
                 <h4>Generated Video</h4>
                 <div className="video-display">
@@ -56,7 +102,11 @@ export function ResultDisplay({ result, isLoading, error, onReset }) {
                     Your browser does not support the video tag.
                   </video>
                 </div>
-                <a href={result.video_url} download className="download-btn">
+                <a 
+                  href={result.video_url} 
+                  onClick={(e) => handleDownload(e, result.video_url, 'tryon-video.mp4')}
+                  className="download-btn"
+                >
                   ⬇️ Download Video
                 </a>
               </div>

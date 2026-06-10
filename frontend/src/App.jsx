@@ -13,6 +13,8 @@ function App() {
   const [result, setResult] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [isVideoLoading, setIsVideoLoading] = useState(false)
+  const [videoError, setVideoError] = useState(null)
   const [catalogLoading, setCatalogLoading] = useState(true)
 
   // Fetch catalog on mount
@@ -83,8 +85,29 @@ function App() {
     try {
       setIsLoading(true)
       setError(null)
+      setVideoError(null)
       const response = await tryon_api.tryOn(formData)
       setResult(response)
+      
+      // Auto-trigger video generation in background if image succeeded and piapi_image_url exists
+      if (response && response.status === 'completed' && response.piapi_image_url) {
+        setIsVideoLoading(true)
+        tryon_api.generateVideo(response.piapi_image_url).then((videoResponse) => {
+          if (videoResponse.status === 'completed') {
+            setResult(prev => ({
+              ...prev,
+              video_url: videoResponse.video_url
+            }))
+          } else if (videoResponse.status === 'failed') {
+            setVideoError(videoResponse.error || "Failed to generate video.")
+          }
+        }).catch(err => {
+          console.error("Video generation failed automatically:", err);
+          setVideoError(err.message || "Failed to generate video.")
+        }).finally(() => {
+          setIsVideoLoading(false)
+        })
+      }
     } catch (err) {
       console.error('Error in try-on:', err)
       setError(err.message || 'Failed to generate try-on image. Please try again.')
@@ -97,6 +120,8 @@ function App() {
   const handleReset = () => {
     setResult(null)
     setError(null)
+    setVideoError(null)
+    setIsVideoLoading(false)
   }
 
   return (
@@ -155,6 +180,8 @@ function App() {
           isLoading={isLoading}
           error={error}
           onReset={handleReset}
+          isVideoLoading={isVideoLoading}
+          videoError={videoError}
         />
       </main>
 

@@ -28,7 +28,7 @@ class PiAPIService:
 
         payload = {
             "model": "gemini",
-            "task_type": "nano-banana-pro",
+            "task_type": "nano-banana-2",
             "input": {
                 "prompt": prompt,
                 "image": user_image,

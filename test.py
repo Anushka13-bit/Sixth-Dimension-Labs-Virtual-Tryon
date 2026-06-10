@@ -1,8 +1,8 @@
 import time
 import jwt
 
-ak = "AMTm9brdKgPTebeTF8pQdEhHPFEprfpH" # fill access key
-sk = "r9tTkybyAQbrLAP9AFgLMP9PmFbNKQd8" # fill secret key
+ak = "A4DnYJphNbHkHRad9hgaDhPtg3n9T9Rn" # fill access key
+sk = "eakMeap8hYLLgBheJ4BmgQGQNEtnrAmT" # fill secret key
 
 def encode_jwt_token(ak, sk):
     headers = {
@@ -19,3 +19,5 @@ def encode_jwt_token(ak, sk):
 
 authorization = encode_jwt_token(ak, sk)
 print(authorization) # Printing the generated API_TOKEN
+
+

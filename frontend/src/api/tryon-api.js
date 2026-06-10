@@ -20,7 +20,7 @@ export const tryon_api = {
           'Content-Type': 'multipart/form-data'
         }
       })
-      
+
       const task_id = response.data?.task_id;
       if (!task_id) return response.data;
 
@@ -47,5 +47,20 @@ export const tryon_api = {
       }
       throw error
     }
+  },
+
+  generateVideo: async (imageUrl) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/generate-video`, {
+        image_url: imageUrl
+      }, {
+        timeout: 600000 // 10 minutes timeout for video generation
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error generating video:', error)
+      throw error
+    }
   }
 }
+

@@ -29,6 +29,11 @@ base_dir = Path(__file__).parent.parent
 uploads = base_dir / "uploads"
 generated = base_dir / "generated"
 catalog = base_dir / "catalog"
+videos = generated / "videos"
+
+# Ensure directories exist
+for d in [uploads, generated, catalog, videos]:
+    d.mkdir(parents=True, exist_ok=True)
 
 app.mount("/uploads", StaticFiles(directory=uploads), name="uploads")
 app.mount("/generated", StaticFiles(directory=generated), name="generated")

@@ -1,71 +1,80 @@
 # Quick Start Guide
 
-## 🚀 5-Minute Setup
+## 🚀 Fast Setup
 
-### Step 1: Backend Setup (5 minutes)
+### Step 1: Backend Setup
 
 ```bash
 # 1. Navigate to backend
 cd backend
 
-# 2. Create and activate virtual environment
+# 2. Create and activate a Python virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 
-# 3. Install dependencies
+# 3. Install backend dependencies
 pip install -r requirements.txt
+```
 
-# 4. Get Google Gemini API Key
-# - Visit: https://makersuite.google.com/app/apikey
-# - Click "Create API key in new project"
-# - Copy the key
+### Step 2: Configure API Keys
 
-# 5. Update .env file
-# Replace GEMINI_API_KEY with your actual key
-nano .env  # or use your favorite editor
+Create `backend/.env` and add your keys:
 
-# 6. Start backend server
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```bash
+BACKEND_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:5173
+
+PIAPI_KEY=your_piapi_key_here
+PIAPI_BASE_URL=https://api.piapi.ai/api/v1/task
+
+KIE_API_KEY=your_kie_api_key_here
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
+
+#### Get your API keys
+- **PiAPI**: Sign up at [https://piapi.ai/](https://piapi.ai/) and generate an API key.
+- **kie.ai**: Sign up at [https://kie.ai/](https://kie.ai/) and generate an API key.
+- **Cloudinary**: Sign up at [https://cloudinary.com/](https://cloudinary.com/) and retrieve the cloud name, API key, and API secret.
+
+> The backend uploads images to Cloudinary so PiAPI can access them via public URLs.
+
+### Step 3: Start the Backend
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ✅ Backend running at `http://localhost:8000`
 
-### Step 2: Frontend Setup (2 minutes)
+### Step 4: Frontend Setup
 
 ```bash
 # In a new terminal window...
-
-# 1. Navigate to frontend
 cd frontend
-
-# 2. Install dependencies
 npm install
-
-# 3. Start dev server
+echo "VITE_API_URL=http://localhost:8000/api" > .env.local
 npm run dev
 ```
 
 ✅ Frontend running at `http://localhost:5173`
 
-## 📝 Testing the Application
+## 📝 Test the App
 
-1. Open browser to `http://localhost:5173`
-2. Upload a face photo (for necklace/earrings)
-3. Upload a hand photo (for ring/bracelet)
-4. Select a jewelry item from the catalogue
+1. Open `http://localhost:5173`
+2. Upload a face image for necklaces/earrings
+3. Upload a hand image for rings/bracelets
+4. Select a jewelry item
 5. Click "Try On"
-6. Wait for image generation (takes 30-60 seconds)
-7. View and download results!
+6. Wait for the generated image and video
+7. Download the results
 
-## ⚙️ Configuration Files
+## 🔧 Notes
 
-### Backend Configuration
-- `.env` - API keys and URLs
-- `catalog/catalog.json` - Jewelry items
-- `requirements.txt` - Python packages
-
-### Frontend Configuration  
-- `.env.local` - API endpoints
-- `package.json` - Dependencies
-- `vite.config.js` - Build settings
+- The backend uses **PiAPI** to generate the virtual try-on image.
+- The backend uses **kie.ai** to convert the image into a short video.
+- The backend also uses **Cloudinary** to host uploaded images.
+- Keep `backend/.env` private and do not commit it.
 

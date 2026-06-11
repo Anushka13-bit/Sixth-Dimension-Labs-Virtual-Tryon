@@ -26,18 +26,20 @@ app.add_middleware(
 
 # Static folders
 base_dir = Path(__file__).parent.parent
-uploads = base_dir / "uploads"
+uploads   = base_dir / "uploads"
 generated = base_dir / "generated"
-catalog = base_dir / "catalog"
-videos = generated / "videos"
+catalog   = base_dir / "catalog"
+videos    = generated / "videos"
+public_uploads = uploads / "public"
 
 # Ensure directories exist
-for d in [uploads, generated, catalog, videos]:
+for d in [uploads, generated, catalog, videos, public_uploads]:
     d.mkdir(parents=True, exist_ok=True)
 
-app.mount("/uploads", StaticFiles(directory=uploads), name="uploads")
+app.mount("/uploads/public", StaticFiles(directory=public_uploads), name="public_uploads")
+app.mount("/uploads",   StaticFiles(directory=uploads),   name="uploads")
 app.mount("/generated", StaticFiles(directory=generated), name="generated")
-app.mount("/catalog", StaticFiles(directory=catalog), name="catalog")
+app.mount("/catalog",   StaticFiles(directory=catalog),   name="catalog")
 
 # Routes
 app.include_router(tryon_router, prefix="/api")
@@ -50,7 +52,6 @@ def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
     return {"status": "healthy"}
 
 

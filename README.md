@@ -1,16 +1,16 @@
 # Virtual Jewellery Try-On
 
-A complete full-stack application for virtual jewelry try-on using AI-generated images and videos. Users upload face/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) with photorealistic results powered by the Kling AI model.
+A complete full-stack application for virtual jewelry try-on using AI-generated images and videos. Users upload face/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) with photorealistic results powered by Kling AI models.
 
 ## 🌟 Features
 
 - **Upload Photos**: Upload face and hand images for try-on
 - **Browse Jewelry**: Browse a curated catalog of jewelry items
-- **Virtual Try-On**: Get photorealistic virtual try-on images using PiAPI (Kling Image-to-Image)
-- **Video Generation**: Automatically generate cinematic try-on videos using kie.ai (Kling Image-to-Video)
-- **Smart Validation**: Automatic validation for jewelry-specific image requirements
-- **Download Results**: Download generated images and videos directly to your device
-- **Modern UI**: Clean, responsive interface with drag-and-drop upload
+- **Virtual Try-On**: Generate photorealistic try-on images with PiAPI
+- **Video Generation**: Create cinematic try-on videos with kie.ai
+- **Smart Validation**: Enforce jewelry-specific image requirements
+- **Download Results**: Download generated images and videos
+- **Modern UI**: Clean, responsive React interface
 
 ## 📋 Project Structure
 
@@ -21,21 +21,20 @@ virtual-tryon/
 │   │   ├── routes/
 │   │   │   └── tryon.py           # API endpoints
 │   │   ├── services/
-│   │   │   ├── piapi_service.py   # PiAPI integration for images
-│   │   │   ├── video_service.py   # kie.ai integration for videos
-│   │   │   ├── prompt_builder.py  # Dynamic prompt generation
-│   │   │   └── catalog_service.py # Catalog management
+│   │   │   ├── piapi_service.py   # PiAPI integration for image try-on
+│   │   │   ├── video_service.py   # kie.ai integration for video generation
+│   │   │   ├── prompt_builder.py  # Natural-language prompt builder
+│   │   │   └── catalog_service.py # Jewelry catalog loader
 │   │   ├── models/
 │   │   │   └── schemas.py         # Request/response models
 │   │   ├── utils/
-│   │   │   └── file_handler.py    # File operations
-│   │   └── main.py                # FastAPI app
+│   │   │   └── file_handler.py    # File upload/download helpers
+│   │   └── main.py                # FastAPI app entrypoint
 │   ├── catalog/
-│   │   └── catalog.json           # Jewelry items catalog
+│   │   └── catalog.json           # Jewelry items metadata
 │   ├── uploads/                   # User uploaded images
 │   ├── generated/                 # Generated images and videos
-│   ├── requirements.txt           # Python dependencies
-│   └── .env                       # Environment variables
+│   └── requirements.txt           # Python dependencies
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
@@ -44,52 +43,54 @@ virtual-tryon/
 │   │   │   ├── ResultDisplay.jsx
 │   │   │   └── *.css              # Component styles
 │   │   ├── api/
-│   │   │   └── tryon-api.js       # API client
+│   │   │   └── tryon-api.js       # Frontend API client
 │   │   ├── App.jsx                # Main app component
 │   │   ├── App.css                # App styles
-│   │   └── main.jsx               # React entry point
+│   │   └── main.jsx               # React entrypoint
 │   ├── index.html                 # HTML template
 │   ├── package.json               # Node dependencies
 │   └── vite.config.js             # Vite configuration
-└── README.md                      # This file
+└── README.md                      # Project documentation
 ```
 
 ## 🛠️ Tech Stack
 
 ### Backend
 - **Python 3.8+**
-- **FastAPI** - Modern web framework
-- **PiAPI** - AI image generation (Kling)
-- **kie.ai** - AI video generation (Kling Image-to-Video)
+- **FastAPI** - Web API framework
+- **PiAPI** - AI image generation service
+- **kie.ai** - AI video generation service
+- **Cloudinary** - Image hosting for public URLs
 - **Pydantic** - Data validation
-- **Python-dotenv** - Environment management
+- **Python-dotenv** - Environment configuration
 - **Uvicorn** - ASGI server
 
 ### Frontend
 - **React 18** - UI library
 - **Vite** - Build tool and dev server
 - **Axios** - HTTP client
-- **CSS3** - Styling with responsive design
+- **CSS3** - Styling and layout
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Python 3.8 or higher
 - Node.js 16 or higher
-- **PiAPI API Key** (for image generation)
-- **kie.ai API Key** (for video generation)
+- **PiAPI API Key**
+- **kie.ai API Key**
+- **Cloudinary account and API credentials**
 
 ### Backend Setup
 
-1. **Navigate to backend directory**
+1. **Navigate to backend**
    ```bash
    cd backend
    ```
 
-2. **Create Python virtual environment**
+2. **Create and activate a virtual environment**
    ```bash
    python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate
    ```
 
 3. **Install dependencies**
@@ -97,23 +98,22 @@ virtual-tryon/
    pip install -r requirements.txt
    ```
 
-4. **Setup environment variables**
+4. **Create your environment file**
    ```bash
-   # Copy .env file and update with your values
-   cp .env.example .env
+   nano .env
    ```
-   *Edit `.env` and add your API keys (see APIs section below).*
+   Add the required keys listed below.
 
-5. **Run backend server**
+5. **Run the backend**
    ```bash
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
-   
+
    Backend will be available at `http://localhost:8000`
 
 ### Frontend Setup
 
-1. **Navigate to frontend directory**
+1. **Navigate to frontend**
    ```bash
    cd frontend
    ```
@@ -123,89 +123,108 @@ virtual-tryon/
    npm install
    ```
 
-3. **Create .env file**
+3. **Configure the frontend API URL**
    ```bash
    echo "VITE_API_URL=http://localhost:8000/api" > .env.local
    ```
 
-4. **Run frontend dev server**
+4. **Start the frontend**
    ```bash
    npm run dev
    ```
-   
+
    Frontend will be available at `http://localhost:5173`
 
-## 🔑 APIs & Setup Guide
+## 🔑 APIs Used and How to Get Them
 
-This application relies on two external APIs to generate high-quality Kling AI outputs: **PiAPI** (for the try-on images) and **kie.ai** (for animating those images into video).
+This project uses the following external services:
 
-### 1. PiAPI (Virtual Try-On Images)
-Used for the core virtual try-on experience.
-1. Create an account at [PiAPI](https://piapi.ai/)
-2. Generate an API Key from your dashboard.
-3. Top up credits if necessary.
-4. Add to your `.env`:
+- **PiAPI** for image-based virtual try-on
+- **kie.ai** for converting generated images into videos
+- **Cloudinary** for hosting uploaded images as public URLs
+
+### PiAPI
+1. Go to [https://piapi.ai/](https://piapi.ai/)
+2. Sign up and verify your account
+3. Create an API key from the dashboard
+4. Add it to `backend/.env`:
    ```bash
    PIAPI_KEY=your_piapi_key_here
    PIAPI_BASE_URL=https://api.piapi.ai/api/v1/task
    ```
 
-### 2. kie.ai (Cinematic Video Generation)
-Used to transform the static try-on image into a smooth, cinematic 5-second video.
-1. Create an account at [kie.ai](https://kie.ai/)
-2. Generate an API Key from your dashboard.
-3. Top up credits if necessary (Error `402` means insufficient credits).
-4. Add to your `.env`:
+### kie.ai
+1. Go to [https://kie.ai/](https://kie.ai/)
+2. Sign up and verify your account
+3. Create an API key from the dashboard
+4. Add it to `backend/.env`:
    ```bash
    KIE_API_KEY=your_kie_api_key_here
-   KIE_BASE_URL=https://api.kie.ai/v1/videos/image2video
-   KIE_AUTH_TYPE=bearer
    ```
 
-## 🔐 Environment Variables (.env)
+### Cloudinary
+1. Go to [https://cloudinary.com/](https://cloudinary.com/)
+2. Sign up for a free account
+3. Get your Cloud name, API key, and API secret
+4. Add them to `backend/.env`:
+   ```bash
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+   ```
 
-Your `backend/.env` should look like this:
-```
+## 🔐 Backend Environment Variables
+
+Create `backend/.env` with the following values:
+
+```bash
 BACKEND_URL=http://localhost:8000
 FRONTEND_URL=http://localhost:5173
 
-# PiAPI (Image Generation)
-PIAPI_KEY=your_key_here
+PIAPI_KEY=your_piapi_key_here
 PIAPI_BASE_URL=https://api.piapi.ai/api/v1/task
 
-# kie.ai (Video Generation)
-KIE_API_KEY=your_key_here
-KIE_BASE_URL=https://api.kie.ai/v1/videos/image2video
-KIE_AUTH_TYPE=bearer
+KIE_API_KEY=your_kie_api_key_here
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
+
+> Keep `backend/.env` secret and do not commit it to Git.
 
 ## 📚 API Endpoints
 
 ### GET /api/catalog
-Get all jewelry items in the catalog.
+Returns available jewelry items.
 
 ### POST /api/try-on
-Generate virtual try-on image (Automatically triggers PiAPI).
-- **Multipart Form Data**: `jewelry_id`, `face_image` (optional), `hand_image` (optional)
+Starts virtual try-on image generation.
+- **Form fields**: `jewelry_id`, `face_image` (optional), `hand_image` (optional)
+
+### GET /api/try-on/{task_id}
+Returns status and generated image URL for a PiAPI task.
 
 ### POST /api/generate-video
-Generate video from image (Automatically triggers kie.ai).
-- **JSON Body**: `{"image_url": "..."}`
+Starts kie.ai video generation from a generated image URL.
+- **JSON body**: `{ "image_url": "..." }`
 
 ## 🎨 Jewelry Types & Image Requirements
 
-| Type | Required Image | Notes |
-|------|---|---|
-| Necklace | Face | Placed around neck |
-| Earrings | Face | Placed on ears |
-| Ring | Hand | Placed on finger |
-| Bracelet | Hand | Placed on wrist |
+| Jewelry Type | Required Upload | Notes |
+|--------------|-----------------|-------|
+| Necklace | Face image | Upload a portrait image with neck visible |
+| Earrings | Face image | Upload a portrait image with ears visible |
+| Ring | Hand image | Upload a hand image with fingers visible |
+| Bracelet | Hand image | Upload a hand image with wrist visible |
 
-## 🔄 Workflow
+## 🔄 User Flow
 
-1. **Upload Images**: User uploads face and/or hand images
-2. **Select Jewelry**: User browses and selects a jewelry item
-3. **Try On**: Frontend validates requirements and sends request
-4. **Generate Image**: Backend uses PiAPI to generate a photorealistic try-on image
-5. **Create Video**: Frontend automatically passes the generated image to `/generate-video` which uses kie.ai to generate a 5-second video.
-6. **Display & Download**: User can view and download the image and video results directly from the browser.
+1. Upload a face or hand photo.
+2. Select a jewelry item.
+3. Send the try-on request to the backend.
+4. Backend uploads images to Cloudinary and calls PiAPI.
+5. Frontend polls for the image generation result.
+6. Frontend sends the generated image URL to `/api/generate-video`.
+7. Backend calls kie.ai to create a 5-second video.
+8. User views and downloads the generated image and video.

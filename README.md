@@ -242,7 +242,10 @@ jewelery chosen-
 image generated-
 <img width="1094" height="1294" alt="image" src="https://github.com/user-attachments/assets/bb69ec4e-2c4d-44cb-bcc5-099383f4a8c7" />
 
-video generated-
+VIDEO DEMONSTRATION-
+https://drive.google.com/file/d/1ACYAOSSRMF_z3SyJTzKJOYRL5nJvmI0R/view?usp=sharing
+
+
 
 
 

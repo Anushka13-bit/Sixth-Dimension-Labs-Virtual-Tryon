@@ -228,3 +228,23 @@ Starts kie.ai video generation from a generated image URL.
 6. Frontend sends the generated image URL to `/api/generate-video`.
 7. Backend calls kie.ai to create a 5-second video.
 8. User views and downloads the generated image and video.
+
+SCREENSHOTS-
+
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/ae4b1ef7-b998-4ad7-8d2d-6c9e7556af0d" />
+
+uploaded face image-
+<img width="4032" height="3024" alt="IMG_8057" src="https://github.com/user-attachments/assets/dfb1357d-3ce6-466b-b25e-f92aeea64694" />
+
+jewelery chosen- 
+<img width="194" height="259" alt="image" src="https://github.com/user-attachments/assets/8e6e2c4c-9c71-48ed-9e7f-a98d1d3b1cd2" />
+
+image generated-
+<img width="1094" height="1294" alt="image" src="https://github.com/user-attachments/assets/bb69ec4e-2c4d-44cb-bcc5-099383f4a8c7" />
+
+video generated-
+
+
+
+
+

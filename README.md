@@ -1,4 +1,4 @@
-# Virtual Jewellery Try-On
+# Virtual Jewellery And Apparel Try-On
 
 A complete full-stack application for virtual jewelry try-on using AI-generated images and videos. Users upload face/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) with photorealistic results powered by Kling AI models.
 
@@ -244,6 +244,16 @@ image generated-
 
 VIDEO DEMONSTRATION-
 https://drive.google.com/file/d/1ACYAOSSRMF_z3SyJTzKJOYRL5nJvmI0R/view?usp=sharing
+
+APPAREL TRYON-
+model-image:
+<img width="198" height="255" alt="model" src="https://github.com/user-attachments/assets/6ee14324-e03c-45a9-980a-915cf7a41c0a" />
+
+Top try-on result: 
+<img width="515" height="693" alt="image" src="https://github.com/user-attachments/assets/31dd8cb6-e88c-482a-9784-515be5fa085f" />
+
+
+
 
 
 

@@ -190,6 +190,16 @@ def build_apparel_prompt(
     fidelity_parts.append("same neckline, sleeve length, and hem length as shown in the second image")
     fidelity = ", ".join(fidelity_parts) + ". Do not change the design, add extra details, or alter the style."
 
+    # Product-photo cleanup — the second image is catalog/product photography and
+    # often contains artifacts that are NOT part of the garment itself. These must
+    # never be copied onto the person.
+    cleanup = (
+        "The second image is a product photo, not the garment as actually worn — ignore and exclude "
+        "anything that is not the garment fabric itself: price tags, brand tags, size labels, "
+        "hangers, mannequin clips or pins, stickers, or any tag or label sewn onto or hanging from the garment. "
+        "The final result must show only clean fabric with no tags, labels, or stickers of any kind visible."
+    )
+
     # Preservation — what must NOT change
     lock = (
         "Keep the person's face, skin tone, hair, and expression exactly as they are. "
@@ -207,6 +217,9 @@ def build_apparel_prompt(
         f"Render the {apparel_name} as if it were physically worn on a real body, not as a flat overlay: "
         f"the fabric must compress and fold at the joints — elbows, waist, where the body bends — "
         f"with visible creases and gathered fabric, not a smooth flat surface. "
+        f"The garment must conform to the body's actual contours — following the curve of the chest, "
+        f"waist, and torso with subtle fabric tension and stretch, rather than sitting as a flat, "
+        f"perfectly smooth panel disconnected from the body underneath. "
         f"Cast a soft contact shadow from the garment onto the body and onto any garment beneath it "
         f"(for example, where a top overlaps the waistband below). "
         f"The fabric's highlights and shadows must follow the same light direction and intensity "
@@ -229,6 +242,7 @@ def build_apparel_prompt(
         f"The first image shows a person wearing their own clothes. "
         f"The second image shows a {apparel_desc} on its own. "
         f"{replacement} "
+        f"{cleanup} "
         f"{fidelity} "
         f"{lock} "
         f"{realism}"

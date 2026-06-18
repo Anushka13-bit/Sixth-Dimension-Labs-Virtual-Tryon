@@ -1,16 +1,17 @@
-# Virtual Jewellery And Apparel Try-On
+# Virtual Try-On (Jewelry & Apparel)
 
-A complete full-stack application for virtual jewelry try-on using AI-generated images and videos. Users upload face/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) with photorealistic results powered by Kling AI models.
+A complete full-stack application for virtual jewelry and apparel try-on using AI-generated images and videos. Users upload face/body/hand photos and virtually try on different jewelry items (rings, bracelets, necklaces, earrings) and apparel (dresses, tops, jackets) with photorealistic results powered by Gemini, PiAPI, and Kling AI models.
 
 ## 🌟 Features
 
-- **Upload Photos**: Upload face and hand images for try-on
-- **Browse Jewelry**: Browse a curated catalog of jewelry items
-- **Virtual Try-On**: Generate photorealistic try-on images with PiAPI
-- **Video Generation**: Create cinematic try-on videos with kie.ai
-- **Smart Validation**: Enforce jewelry-specific image requirements
+- **Upload Photos**: Upload face, body, and hand images for try-on
+- **Browse Catalog**: Browse a curated catalog of jewelry and apparel items
+- **Virtual Jewelry Try-On**: Generate photorealistic jewelry try-on images with PiAPI
+- **Virtual Apparel Try-On**: Generate ultra-realistic apparel try-on images using the Gemini API (Nano Banana 2) with advanced prompt-engineering for realistic contouring and artifact removal
+- **Video Generation**: Create cinematic try-on videos automatically with kie.ai for both jewelry and apparel
+- **Smart Validation**: Enforce category-specific image requirements based on the active mode
 - **Download Results**: Download generated images and videos
-- **Modern UI**: Clean, responsive React interface
+- **Modern UI**: Clean, responsive React interface with toggleable try-on modes
 
 ## 📋 Project Structure
 
@@ -58,9 +59,11 @@ virtual-tryon/
 ### Backend
 - **Python 3.8+**
 - **FastAPI** - Web API framework
-- **PiAPI** - AI image generation service
+- **PiAPI** - AI image generation service for jewelry
+- **Gemini API** - AI image generation service for apparel (Nano Banana 2)
 - **kie.ai** - AI video generation service
-- **Cloudinary** - Image hosting for public URLs
+- **Cloudinary** - Image hosting for public URLs (jewelry)
+- **ImgBB** - Image hosting for public URLs (apparel videos)
 - **Pydantic** - Data validation
 - **Python-dotenv** - Environment configuration
 - **Uvicorn** - ASGI server
@@ -77,7 +80,9 @@ virtual-tryon/
 - Python 3.8 or higher
 - Node.js 16 or higher
 - **PiAPI API Key**
+- **Gemini API Key**
 - **kie.ai API Key**
+- **ImgBB API Key**
 - **Cloudinary account and API credentials**
 
 ### Backend Setup
@@ -139,9 +144,10 @@ virtual-tryon/
 
 This project uses the following external services:
 
-- **PiAPI** for image-based virtual try-on
-- **kie.ai** for converting generated images into videos
-- **Cloudinary** for hosting uploaded images as public URLs
+- **PiAPI** for jewelry virtual try-on
+- **Gemini API** for apparel virtual try-on (Nano Banana 2)
+- **kie.ai** for converting generated images into cinematic videos
+- **Cloudinary / ImgBB** for hosting generated images to produce public URLs required for video generation
 
 ### PiAPI
 1. Go to [https://piapi.ai/](https://piapi.ai/)
@@ -184,6 +190,9 @@ FRONTEND_URL=http://localhost:5173
 PIAPI_KEY=your_piapi_key_here
 PIAPI_BASE_URL=https://api.piapi.ai/api/v1/task
 
+GEMINI_API_KEY=your_gemini_api_key_here
+IMGBB_KEY=your_imgbb_key_here
+
 KIE_API_KEY=your_kie_api_key_here
 
 CLOUDINARY_CLOUD_NAME=your_cloud_name
@@ -209,14 +218,15 @@ Returns status and generated image URL for a PiAPI task.
 Starts kie.ai video generation from a generated image URL.
 - **JSON body**: `{ "image_url": "..." }`
 
-## 🎨 Jewelry Types & Image Requirements
+## 🎨 Try-On Types & Image Requirements
 
-| Jewelry Type | Required Upload | Notes |
-|--------------|-----------------|-------|
-| Necklace | Face image | Upload a portrait image with neck visible |
-| Earrings | Face image | Upload a portrait image with ears visible |
-| Ring | Hand image | Upload a hand image with fingers visible |
-| Bracelet | Hand image | Upload a hand image with wrist visible |
+| Mode | Item Type | Required Upload | Notes |
+|------|-----------|-----------------|-------|
+| Jewelry | Necklace | Face image | Upload a portrait image with neck visible |
+| Jewelry | Earrings | Face image | Upload a portrait image with ears visible |
+| Jewelry | Ring | Hand image | Upload a hand image with fingers visible |
+| Jewelry | Bracelet | Hand image | Upload a hand image with wrist visible |
+| Apparel | Tops/Dresses | Face/Body image | Upload a portrait/body image |
 
 ## 🔄 User Flow
 

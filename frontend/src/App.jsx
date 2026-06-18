@@ -6,6 +6,7 @@ import { tryon_api } from './api/tryon-api'
 import './App.css'
 
 function App() {
+  const [tryonMode, setTryonMode] = useState('jewelry') // 'jewelry' or 'apparel'
   const [faceImage, setFaceImage] = useState(null)
   const [handImage, setHandImage] = useState(null)
   const [catalogItems, setCatalogItems] = useState([])
@@ -26,7 +27,7 @@ function App() {
         setCatalogItems(items)
       } catch (err) {
         console.error('Error fetching catalog:', err)
-        setError('Failed to load jewelry catalog')
+        setError('Failed to load catalog')
       } finally {
         setCatalogLoading(false)
       }
@@ -49,32 +50,39 @@ function App() {
 
   const handleTryOn = async () => {
     if (!selectedJewelryId) {
-      setError('Please select a jewelry item')
+      setError('Please select an item from the catalog')
       return
     }
 
-    const selectedJewelry = catalogItems.find(item => item.id === selectedJewelryId)
-    if (!selectedJewelry) {
-      setError('Selected jewelry item not found')
+    const selectedItem = catalogItems.find(item => item.id === selectedJewelryId)
+    if (!selectedItem) {
+      setError('Selected item not found')
       return
     }
 
-    // Check image requirements based on jewelry type
-    if (selectedJewelry.type === 'ring' || selectedJewelry.type === 'bracelet') {
-      if (!handImage) {
-        setError(`Hand image required for ${selectedJewelry.type} try-on`)
+    // Check image requirements based on mode & type
+    if (tryonMode === 'apparel') {
+      if (!faceImage) {
+        setError('Portrait/body image required for apparel try-on')
         return
       }
-    } else if (selectedJewelry.type === 'necklace' || selectedJewelry.type === 'earrings') {
-      if (!faceImage) {
-        setError(`Face image required for ${selectedJewelry.type} try-on`)
-        return
+    } else {
+      if (selectedItem.type === 'ring' || selectedItem.type === 'bracelet') {
+        if (!handImage) {
+          setError(`Hand image required for ${selectedItem.type} try-on`)
+          return
+        }
+      } else if (selectedItem.type === 'necklace' || selectedItem.type === 'earrings') {
+        if (!faceImage) {
+          setError(`Face image required for ${selectedItem.type} try-on`)
+          return
+        }
       }
     }
 
     // Prepare form data
     const formData = new FormData()
-    formData.append('jewelry_id', selectedJewelryId)
+    formData.append('jewelry_id', selectedJewelryId) // keeping parameter name same for backend compatibility
     if (faceImage) {
       formData.append('face_image', faceImage)
     }
@@ -124,39 +132,63 @@ function App() {
     setIsVideoLoading(false)
   }
 
+  const filteredCatalog = catalogItems.filter(item => {
+    const itemCategory = item.category || 'jewelry';
+    return itemCategory === tryonMode;
+  });
+
   return (
     <div className="app">
       <header className="header">
-        <h1>💎 Virtual Jewellery Try-On</h1>
-        <p>Upload your photos and see how jewelry looks on you</p>
+        <h1>{tryonMode === 'jewelry' ? '💎 Virtual Jewellery Try-On' : '👕 Virtual Apparel Try-On'}</h1>
+        <p>Upload your photos and see how {tryonMode === 'jewelry' ? 'jewelry looks on you' : 'clothes fit on you'}</p>
+        
+        <div className="mode-toggle" style={{ marginTop: '20px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+          <button 
+            className={`toggle-btn ${tryonMode === 'jewelry' ? 'active' : ''}`}
+            onClick={() => { setTryonMode('jewelry'); setSelectedJewelryId(null); handleReset(); }}
+            style={{ padding: '10px 20px', borderRadius: '25px', cursor: 'pointer', border: 'none', backgroundColor: tryonMode === 'jewelry' ? '#2c3e50' : '#e0e0e0', color: tryonMode === 'jewelry' ? '#fff' : '#333' }}
+          >
+            Jewellery Mode
+          </button>
+          <button 
+            className={`toggle-btn ${tryonMode === 'apparel' ? 'active' : ''}`}
+            onClick={() => { setTryonMode('apparel'); setSelectedJewelryId(null); handleReset(); }}
+            style={{ padding: '10px 20px', borderRadius: '25px', cursor: 'pointer', border: 'none', backgroundColor: tryonMode === 'apparel' ? '#2c3e50' : '#e0e0e0', color: tryonMode === 'apparel' ? '#fff' : '#333' }}
+          >
+            Apparel Mode
+          </button>
+        </div>
       </header>
 
       <main className="main-content">
         {/* Image Upload Section */}
         <section className="upload-section">
           <h2>Step 1: Upload Your Photos</h2>
-          <div className="upload-grid">
+          <div className="upload-grid" style={{ display: 'flex', justifyContent: 'center', gap: '30px' }}>
             <ImageUpload
               type="face"
               onImageSelect={handleFaceImageSelect}
               hasImage={!!faceImage}
             />
-            <ImageUpload
-              type="hand"
-              onImageSelect={handleHandImageSelect}
-              hasImage={!!handImage}
-            />
+            {tryonMode === 'jewelry' && (
+              <ImageUpload
+                type="hand"
+                onImageSelect={handleHandImageSelect}
+                hasImage={!!handImage}
+              />
+            )}
           </div>
         </section>
 
         {/* Catalogue Section */}
         <section className="catalogue-section">
-          <h2>Step 2: Choose Jewelry</h2>
+          <h2>Step 2: Choose {tryonMode === 'jewelry' ? 'Jewelry' : 'Apparel'}</h2>
           {catalogLoading ? (
-            <div className="loading-catalogue">Loading jewelry collection...</div>
+            <div className="loading-catalogue">Loading catalog...</div>
           ) : (
             <CatalogueGrid
-              items={catalogItems}
+              items={filteredCatalog}
               selectedId={selectedJewelryId}
               onSelect={handleJewelrySelect}
             />
@@ -168,7 +200,7 @@ function App() {
           <button
             className="tryon-btn"
             onClick={handleTryOn}
-            disabled={isLoading || !selectedJewelryId || (!faceImage && !handImage)}
+            disabled={isLoading || !selectedJewelryId || (tryonMode === 'jewelry' && !faceImage && !handImage) || (tryonMode === 'apparel' && !faceImage)}
           >
             {isLoading ? 'Generating...' : '✨ Try On'}
           </button>
@@ -186,11 +218,12 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>Virtual Jewellery Try-On © 2024</p>
-        <p className="footer-note">Powered by AI-Generated Imagery</p>
+        <p>Virtual Try-On © 2026</p>
+        <p className="footer-note">Powered by AI-Generated Imagery & Nano Banana 2</p>
       </footer>
     </div>
   )
 }
 
 export default App
+

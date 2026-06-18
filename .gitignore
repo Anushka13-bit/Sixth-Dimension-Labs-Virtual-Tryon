@@ -50,3 +50,4 @@ generated/*
 !uploads/.gitkeep
 !generated/.gitkeep
 *.log
+*.mov

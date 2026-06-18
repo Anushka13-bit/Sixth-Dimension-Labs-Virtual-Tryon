@@ -45,8 +45,9 @@ class VideoService:
             "input": {
                 "image_urls": [image_url],
                 "prompt": (
-                    "Fashion try-on video, cinematic motion, "
-                    "smooth rotation, soft lighting, realistic style"
+                    "Fashion try-on video. Subject naturally turns left and right with smooth motion. "
+                    "Subtle camera orbit, cinematic framing. Realistic lighting, soft shadows. "
+                    "High-quality commercial product video, stable and smooth motion."
                 ),
                 "duration": "5",
                 "sound": False 

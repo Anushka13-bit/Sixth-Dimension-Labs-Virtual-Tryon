@@ -3,12 +3,12 @@ import './CatalogueGrid.css'
 
 export function CatalogueGrid({ items, selectedId, onSelect }) {
   if (!items || items.length === 0) {
-    return <div className="catalogue-empty">No jewelry items available</div>
+    return <div className="catalogue-empty">No items available in this category</div>
   }
 
   return (
     <div className="catalogue-section">
-      <h3>💎 Select Jewelry</h3>
+      <h3>✨ Select Item</h3>
       <div className="catalogue-grid">
         {items.map((item) => (
           <div
